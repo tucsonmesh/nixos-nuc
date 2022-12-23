@@ -63,7 +63,7 @@ in
     isNormalUser = true;
     home = "/home/josh";
     description = "josh";
-    extraGroups = [ "wheel" "networkmanager" ]; # Enable 'sudo' and ability to configure network
+    extraGroups = [ "wheel" "networkmanager" "docker" ]; # Enable 'sudo', ability to configure network, and docker
     # hashed passwords and authorized keys set in ./configuration-private.nix
   };
   users.users.glen = {
@@ -88,6 +88,7 @@ in
     wireguard-tools
     htop
     podman-compose
+    docker-compose
     unstablePkgs.helix
     unstablePkgs.tailscale
   ];
@@ -185,6 +186,9 @@ in
 
       # Required for containers under podman-compose to be able to talk to each other.
       defaultNetwork.dnsname.enable = true;
+    };
+    docker = {
+      enable = true;
     };
   };
 
