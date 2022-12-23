@@ -84,11 +84,11 @@ in
     firefox
     tmux
     mosh
-    helix
     stow
     wireguard-tools
     htop
     podman-compose
+    unstablePkgs.helix
     unstablePkgs.tailscale
   ];
 
