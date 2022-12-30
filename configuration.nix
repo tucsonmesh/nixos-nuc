@@ -76,6 +76,10 @@ in
   # Disable mutable users
   users.mutableUsers = false;
 
+  # Only wheel (sudo) users can do nix sry
+  nix.settings.allowed-users = [ "@wheel" ];
+  security.sudo.execWheelOnly = true;
+
   # Packages installed in system profile
   environment.systemPackages = with pkgs; [
     vim
@@ -118,10 +122,20 @@ in
   };
 
   # Enable the OpenSSH daemon.
-  services.openssh.enable = true;
-  services.openssh.permitRootLogin = "no";
-  services.openssh.passwordAuthentication = false;
-  services.openssh.kbdInteractiveAuthentication = false;
+  services.openssh = {
+    enable = true;
+    permitRootLogin = "no";
+    passwordAuthentication = false;
+    kbdInteractiveAuthentication = false;
+    # From Xe Iaso
+    extraConfig = ''
+      AuthenticationMethods publickey
+      AllowStreamLocalForwarding no
+      AllowAgentForwarding no
+      AllowTcpForwarding yes
+      X11Forwarding no
+    '';
+  };
 
   networking.nat.enable = true;
   networking.nat.externalInterface = "wlp2s0";
