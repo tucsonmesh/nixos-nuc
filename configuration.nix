@@ -5,7 +5,7 @@
 { config, pkgs, ... }:
 
 let
-  unstablePkgs = import ( fetchTarball https://github.com/NixOS/nixpkgs/archive/nixos-unstable.tar.gz ) {};
+  unstablePkgs = import ( fetchTarball https://github.com/NixOS/nixpkgs/archive/nixos-unstable.tar.gz ) { config = config.nixpkgs.config; };
 in
 {
   imports =
@@ -117,7 +117,9 @@ in
     
   # Enable xrdp with xfce as the DE because gnome is being a pain in the ass
   services.xrdp = {
-    enable = true;
+    # TODO: disabled until a CVE is addressed
+    #enable = true;
+    enable = false;
     defaultWindowManager = "xfce4-session";
   };
 
@@ -214,9 +216,9 @@ in
   # (e.g. man configuration.nix or on https://nixos.org/nixos/options.html).
   system.stateVersion = "22.05"; # Did you read the comment?
 
-  # do auto upgrades
-  system.autoUpgrade.enable = true;
-  system.autoUpgrade.allowReboot = true;
+  # don't do auto upgrades
+  system.autoUpgrade.enable = false;
+  system.autoUpgrade.allowReboot = false;
 
   # periodically collect garbage
   nix.gc = {
