@@ -12,6 +12,7 @@ in
     [ # Include the results of the hardware scan.
       ./hardware-configuration.nix
       ./configuration-private.nix
+      ./ups.nix
     ];
 
   # Use the systemd-boot EFI boot loader.
@@ -93,6 +94,7 @@ in
     htop
     podman-compose
     docker-compose
+    usbutils
     unstablePkgs.helix
     unstablePkgs.tailscale
   ];
