@@ -13,6 +13,7 @@ in
       ./hardware-configuration.nix
       ./configuration-private.nix
       ./ups.nix
+      ./mapgen.nix
     ];
 
   # Use the systemd-boot EFI boot loader.
@@ -148,13 +149,14 @@ in
   # Configure the firewall, letting basically just tailscale & SSH through
   networking.firewall = {
     enable = true;
-    # tailscale
     trustedInterfaces = [ "tailscale0" ];
     allowedTCPPorts = [ 
       # ssh
       22 
       # xrdp
       3389
+      # mesh map webserver
+      8080
     ];
     allowedUDPPortRanges = [
       # wireguard
