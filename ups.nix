@@ -27,9 +27,9 @@ in
       directives = [
         "vendorid = \"${vid}\""
         "productid = \"${pid}\""
-	      "product = \"Back-UPS ES 850G2 FW:931.a10.D USB FW:a10\""
+        "product = \"Back-UPS ES 850G2 FW:931.a10.D USB FW:a10\""
         "vendor = \"American Power Conversion\""
-	      "serial = \"4B2216P31656\""
+        "serial = \"4B2216P31656\""
         "bus = \"002\""
       ];
       # "this option is not valid for usbhid-ups" -- the internet
