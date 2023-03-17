@@ -26,6 +26,8 @@ in
 
     wantedBy = [ "multi-user.target" ];
     after = [ "network-online.target" ];
+    
+    path = [ pkgs.python39 pkgs.python39Packages.pip ];
 
     serviceConfig = {
       Type = "oneshot";
@@ -43,15 +45,11 @@ in
   systemd.timers.mesh-geojson = {
     description = "a timer that periodically invokes mesh-geojson.service";
 
-    unitConfig = {
-      User = "mapgen";
-      Group = "mapgen";
-    };
+    wantedBy = [ "timers.target" ];
 
     timerConfig = {
-      # Run one minute after boot
-      OnBootSec = "1min";
-      # And run every hour thereafter
+      # The service already runs at boot.
+      # Just run it every hour thereafter.
       OnUnitActiveSec = "1hour";
     };
   };
@@ -66,7 +64,7 @@ in
     path = [ unstablePkgs.caddy ];
 
     serviceConfig = {
-      Type = "oneshot";
+      Type = "simple";
       User = "mapgen";
       Group = "mapgen";
 
