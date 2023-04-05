@@ -96,6 +96,8 @@ in
     podman-compose
     docker-compose
     usbutils
+    qrencode
+    envsubst
     unstablePkgs.helix
     unstablePkgs.tailscale
   ];
