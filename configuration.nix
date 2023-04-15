@@ -122,9 +122,7 @@ in
     
   # Enable xrdp with xfce as the DE because gnome is being a pain in the ass
   services.xrdp = {
-    # TODO: disabled until a CVE is addressed
-    #enable = true;
-    enable = false;
+    enable = true;
     defaultWindowManager = "xfce4-session";
   };
 
