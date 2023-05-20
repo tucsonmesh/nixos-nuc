@@ -98,6 +98,7 @@ in
     usbutils
     qrencode
     envsubst
+    quickemu
     unstablePkgs.helix
     unstablePkgs.tailscale
   ];
@@ -143,13 +144,17 @@ in
   };
 
   networking.nat.enable = true;
-  networking.nat.externalInterface = "wlp2s0";
+  # Death to Wi-Fi, long live Ethernet
+  # networking.nat.externalInterface = "wlp2s0";
+  networking.nat.externalInterface = "enp0s29u1u1";
   networking.nat.internalInterfaces = [ "mesh-wg" ];
   # "warning: Strict reverse path filtering breaks Tailscale exit node use and some subnet routing setups. Consider setting `networking.firewall.checkReversePath` = 'loose'"
-  # Configure the firewall, letting basically just tailscale & SSH through
+  # Configure the firewall
   networking.firewall = {
     enable = true;
-    trustedInterfaces = [ "tailscale0" ];
+    # It would be cool to not do this, but there are lots of edge cases
+    # And if you're successfully sending packets in on either of these interfaces, you're authenticated already anyway
+    trustedInterfaces = [ "tailscale0" "mesh-wg" ];
     allowedTCPPorts = [ 
       # ssh
       22 
@@ -187,12 +192,12 @@ in
       # This allows the wireguard server to route your traffic to the internet and hence be like a VPN
       # For this to work you have to set the dnsserver IP of your router (or dnsserver of choice) in your clients
       postSetup = ''
-        ${pkgs.iptables}/bin/iptables -t nat -A POSTROUTING -s 10.100.0.0/24 -o wlp2s0 -j MASQUERADE
+        ${pkgs.iptables}/bin/iptables -t nat -A POSTROUTING -s 10.100.0.0/24 -o enp0s29u1u1 -j MASQUERADE
       '';
 
       # This undoes the above command
       postShutdown = ''
-        ${pkgs.iptables}/bin/iptables -t nat -D POSTROUTING -s 10.100.0.0/24 -o wlp2s0 -j MASQUERADE
+        ${pkgs.iptables}/bin/iptables -t nat -D POSTROUTING -s 10.100.0.0/24 -o enp0s29u1u1 -j MASQUERADE
       '';
 
       # private key file and peers defined in ./configuration-private.nix
