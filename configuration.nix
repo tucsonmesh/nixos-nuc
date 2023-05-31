@@ -68,12 +68,6 @@ in
     extraGroups = [ "wheel" "networkmanager" "docker" ]; # Enable 'sudo', ability to configure network, and docker
     # hashed passwords and authorized keys set in ./configuration-private.nix
   };
-  users.users.glen = {
-    isNormalUser = true;
-    home = "/home/glen";
-    description = "glen";
-    # hashed passwords and authorized keys set in ./configuration-private.nix
-  };
 
   # Disable mutable users
   users.mutableUsers = false;
@@ -148,7 +142,6 @@ in
   # networking.nat.externalInterface = "wlp2s0";
   networking.nat.externalInterface = "enp0s29u1u1";
   networking.nat.internalInterfaces = [ "mesh-wg" ];
-  # "warning: Strict reverse path filtering breaks Tailscale exit node use and some subnet routing setups. Consider setting `networking.firewall.checkReversePath` = 'loose'"
   # Configure the firewall
   networking.firewall = {
     enable = true;
@@ -171,6 +164,7 @@ in
       # tailscale
       { from = config.services.tailscale.port; to = config.services.tailscale.port; }
     ];
+    # "warning: Strict reverse path filtering breaks Tailscale exit node use and some subnet routing setups. Consider setting `networking.firewall.checkReversePath` = 'loose'"
     checkReversePath = "loose";
   };
   
