@@ -14,6 +14,7 @@ in
       ./configuration-private.nix
       ./ups.nix
       ./mapgen.nix
+      ./caddy.nix
     ];
 
   # Use the systemd-boot EFI boot loader.
@@ -153,8 +154,6 @@ in
       22 
       # xrdp
       3389
-      # mesh map webserver
-      8080
     ];
     allowedUDPPortRanges = [
       # wireguard

@@ -12,6 +12,8 @@ in
     description = "mapgen user";
     home = "/var/lib/mapgen";
     createHome = true;
+    # o+rx needed for caddy.nix
+    homeMode = "755";
     packages = [
       pkgs.python39
       pkgs.python39Packages.pip
@@ -55,23 +57,24 @@ in
   };
 
   # Finally, we need a webserver that handles that geojson
-  systemd.services.mesh-webserver = {
-    description = "a map webserver";
-
-    wantedBy = [ "multi-user.target" ];
-    after = [ "network-online.target" ];
-
-    path = [ unstablePkgs.caddy ];
-
-    serviceConfig = {
-      Type = "simple";
-      User = "mapgen";
-      Group = "mapgen";
-
-      Restart = "on-failure";
-      RestartSec = "10s";
-
-      ExecStart = "/var/lib/mapgen/website/start_webserver.sh";
-    };
-  };
+  # This has been migrated to caddy.nix. Will be removed once it's clear we're sticking with that
+  #systemd.services.mesh-webserver = {
+  #  description = "a map webserver";
+  #
+  #  wantedBy = [ "multi-user.target" ];
+  #  after = [ "network-online.target" ];
+  #
+  #  path = [ unstablePkgs.caddy ];
+  #
+  #  serviceConfig = {
+  #    Type = "simple";
+  #    User = "mapgen";
+  #    Group = "mapgen";
+  #
+  #    Restart = "on-failure";
+  #    RestartSec = "10s";
+  #
+  #    ExecStart = "/var/lib/mapgen/website/start_webserver.sh";
+  #  };
+  #};
 }
