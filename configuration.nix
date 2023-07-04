@@ -94,6 +94,7 @@ in
     qrencode
     envsubst
     quickemu
+    sshpass
     unstablePkgs.helix
     unstablePkgs.tailscale
   ];
@@ -125,14 +126,17 @@ in
   # Enable the OpenSSH daemon.
   services.openssh = {
     enable = true;
-    permitRootLogin = "no";
-    passwordAuthentication = false;
-    kbdInteractiveAuthentication = false;
+    settings = {
+      PermitRootLogin = "no";
+      PasswordAuthentication = false;
+      KbdInteractiveAuthentication = false;
+    };
     # From Xe Iaso
+    # except the agent forwarding
     extraConfig = ''
       AuthenticationMethods publickey
       AllowStreamLocalForwarding no
-      AllowAgentForwarding no
+      AllowAgentForwarding yes
       AllowTcpForwarding yes
       X11Forwarding no
     '';
@@ -201,9 +205,6 @@ in
   virtualisation = {
     podman = {
       enable = true;
-
-      # Required for containers under podman-compose to be able to talk to each other.
-      defaultNetwork.dnsname.enable = true;
     };
     docker = {
       enable = true;
