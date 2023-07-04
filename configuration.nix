@@ -95,6 +95,7 @@ in
     envsubst
     quickemu
     sshpass
+    age
     unstablePkgs.helix
     unstablePkgs.tailscale
   ];
