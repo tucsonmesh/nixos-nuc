@@ -11,10 +11,10 @@ in
   imports =
     [ # Include the results of the hardware scan.
       ./hardware-configuration.nix
-      ./configuration-private.nix
       ./ups.nix
       ./mapgen.nix
       ./caddy.nix
+      ./secrets/configuration-private.nix
     ];
 
   # Use the systemd-boot EFI boot loader.
