@@ -160,6 +160,9 @@ in
       22 
       # xrdp
       3389
+      # mesh services/caddy reverse proxy
+      # applies filtering based on IP for certain routes anyway
+      80
     ];
     allowedUDPPortRanges = [
       # wireguard
