@@ -58,6 +58,7 @@ in
   systemd.services.upsdrv.serviceConfig = {
     User = "${upsmonUser}";
     Group = "${upsmonUser}";
+    Restart = "on-failure";
   };
 
   # upsSetup is a dependency we want to run first from 
@@ -65,7 +66,7 @@ in
   system.activationScripts.upsOwnership = lib.stringAfter [ "upsSetup" ]
     ''
       # Ensure that the UPS state directory is writable by ${upsmonUser}
-      chown ${upsmonUser}:${upsmonUser} /var/state/ups
+      chown -R ${upsmonUser}:${upsmonUser} /var/state/ups
     '';
 
    # reference: https://github.com/networkupstools/nut/tree/master/conf
