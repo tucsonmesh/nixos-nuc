@@ -17,6 +17,9 @@
       paths = [
         "/home"
         "/var/lib/mapgen"
+        "/etc/nixos"
+        "/root"
+        "/dumbledore"
       ];
 
       timerConfig = {
