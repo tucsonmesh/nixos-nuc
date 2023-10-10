@@ -26,31 +26,17 @@ in
   boot.kernel.sysctl."net.ipv4.ip_forward" = 1;
   boot.kernel.sysctl."net.ipv6.conf.all.forwarding" = 1;
 
-  networking.hostName = "nixos-nuc"; # Define your hostname.
+  networking.hostName = "nixos-dell"; # Define your hostname.
   # ignore wpa_supplicant because we'll be using NetworkManager to configure wireless networking
   # networking.wireless.enable = true;  # Enables wireless support via wpa_supplicant.
 
   # Set your time zone.
   time.timeZone = "America/Phoenix";
 
-  # The global useDHCP flag is deprecated, therefore explicitly set to false here.
-  # Per-interface useDHCP will be mandatory in the future, so this generated config
-  # replicates the default behaviour.
-  networking.useDHCP = false;
-  # networking.interfaces.wlp2s0.useDHCP = true;
-  # TODO: NetworkManager basically just ignores all this?
-  networking.interfaces.wlp2s0 = {
-    useDHCP = false;
-    ipv4.addresses = [
-      {
-        address = "10.96.12.184";
-        prefixLength = 26;
-      }
-    ];
+  networking = {
+    networkmanager.enable = true;
   };
-  networking.defaultGateway = "10.96.12.129";
-  networking.nameservers = [ "10.96.12.129" ];
-    
+  
   # Enable sound
   sound.enable = true;
   hardware.pulseaudio.enable = true;
@@ -146,8 +132,7 @@ in
 
   networking.nat.enable = true;
   # Death to Wi-Fi, long live Ethernet
-  # networking.nat.externalInterface = "wlp2s0";
-  networking.nat.externalInterface = "enp0s29u1u1";
+  networking.nat.externalInterface = "enp4s0";
   networking.nat.internalInterfaces = [ "mesh-wg" ];
   # Configure the firewall
   networking.firewall = {
@@ -222,7 +207,7 @@ in
   # this value at the release version of the first install of this system.
   # Before changing this value read the documentation for this option
   # (e.g. man configuration.nix or on https://nixos.org/nixos/options.html).
-  system.stateVersion = "22.05"; # Did you read the comment?
+  system.stateVersion = "23.05"; # Did you read the comment?
 
   # don't do auto upgrades
   system.autoUpgrade.enable = false;
