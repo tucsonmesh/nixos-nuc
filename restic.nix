@@ -22,6 +22,11 @@
         "/dumbledore"
       ];
 
+      pruneOpts = [
+        "--keep-daily 7"
+        "--keep-weekly 8"
+      ];
+
       timerConfig = {
         OnCalendar = "04:20";
       };
