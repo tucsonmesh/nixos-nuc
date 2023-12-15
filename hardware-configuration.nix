@@ -5,93 +5,25 @@
 
 {
   imports =
-    [ (modulesPath + "/installer/scan/not-detected.nix")
+    [ (modulesPath + "/profiles/qemu-guest.nix")
     ];
 
+  boot.initrd.availableKernelModules = [ "ahci" "xhci_pci" "virtio_pci" "sr_mod" "virtio_blk" ];
+  boot.initrd.kernelModules = [ ];
   boot.kernelModules = [ "kvm-intel" ];
   boot.extraModulePackages = [ ];
-  #boot.kernelParams = [ "ip=dhcp" ];
-  # boot.kernelParams = [ ];
 
-  boot.initrd = {
-    availableKernelModules = [ "vfat" "xhci_pci" "ehci_pci" "ahci" "usbhid" "ums_realtek" "usb_storage" "sd_mod" "ath9k" "r8169" "wireguard" ];
-    kernelModules = [ ];
+  fileSystems."/" =
+    { device = "/dev/disk/by-uuid/534a1ffc-6f8a-487f-ba1c-9039667c5e7b";
+      fsType = "ext4";
+    };
 
-  #   # copy_bin_and_libs ${pkgs.wireguard-tools}/bin/wg-quick
-  #   # copy_bin_and_libs ${pkgs.wireguard-tools}/bin/.wg-quick-wrapped
-  #   # copy_bin_and_libs ${pkgs.bash}/bin/bash
-  #   extraUtilsCommands = ''
-  #     copy_bin_and_libs ${pkgs.wireguard-tools}/bin/wg
-  #     copy_bin_and_libs ${pkgs.wireguard-tools}/bin/.wg-wrapped
-  #     copy_bin_and_libs ${pkgs.wpa_supplicant}/bin/wpa_supplicant
-  #     copy_bin_and_libs ${pkgs.wpa_supplicant}/bin/wpa_passphrase
-  #     copy_bin_and_libs ${pkgs.wpa_supplicant}/bin/wpa_cli
+  boot.initrd.luks.devices."luks-d5a99568-7dc8-413f-aa1e-0787f97bf37c".device = "/dev/disk/by-uuid/d5a99568-7dc8-413f-aa1e-0787f97bf37c";
 
-  #     echo "aAaAaAaAaAaAaAaAaAaAaAaAaA"
-  #     echo "aAaAaAaAaAaAaAaAaAaAaAaAaA"
-  #     echo "aAaAaAaAaAaAaAaAaAaAaAaAaA"
-  #     echo "aAaAaAaAaAaAaAaAaAaAaAaAaA"
-  #     echo "aAaAaAaAaAaAaAaAaAaAaAaAaA"
-  #     echo "aAaAaAaAaAaAaAaAaAaAaAaAaA"
-  #     echo "aAaAaAaAaAaAaAaAaAaAaAaAaA"
-  #     echo "aAaAaAaAaAaAaAaAaAaAaAaAaA"
-  #     echo $out
-  #     mkdir -p $out/etc
-  #     ${pkgs.wpa_supplicant}/bin/wpa_passphrase "wifi ssid" "wifi pwd" > $out/etc/wpa_supplicant.conf
-  #   '';
-
-  #   network = {
-  #     enable = true;
-  #     flushBeforeStage2 = true;
-
-  #     postCommands = ''
-  #       wpa_supplicant -i wlp3s0 -c /etc/wpa_supplicant.conf
-  #       
-  #       ip link add dev wg0 type wireguard
-  #       ip address add dev wg0 10.100.0.1/24
-  #     '';
-
-  #     # ssh = {
-  #     #   enable = true;
-  #     #   port = 2222;
-  #     # };
-  #   };
-
-  #   # systemd = {
-  #   #   enable = true;
-  #   #   packages = [ "${pkgs.wireguard-tools}" ];
-  #   #   emergencyAccess = true;
-  #   # };
-  };
-
-  fileSystems."/" = { 
-    device = "/dev/disk/by-uuid/03a9ad8c-8601-42f7-bf90-0edf2434b7ea";
-    fsType = "btrfs";
-    options = [ "subvol=@" ];
-  };
-
-  boot.initrd.luks.devices."luks-b4e7c50f-7263-49cf-8d28-24f8548985a2" = {
-    device = "/dev/disk/by-uuid/b4e7c50f-7263-49cf-8d28-24f8548985a2";
-
-    # wow, much hacky, very TODO
-    preOpenCommands = ''
-      mkdir -p /tmp/boot
-      mount -t vfat /dev/disk/by-uuid/F1F3-4361 /tmp/boot
-    '';
-    keyFile = "/tmp/boot/keyfile";
-    postOpenCommands = ''
-      umount /tmp/boot
-    '';
-
-    fallbackToPassword = true;
-    tryEmptyPassphrase = true;
-    preLVM = false;
-  };
-
-  fileSystems."/boot" = { 
-    device = "/dev/disk/by-uuid/F1F3-4361";
-    fsType = "vfat";
-  };
+  fileSystems."/boot" =
+    { device = "/dev/disk/by-uuid/B8D0-F6A3";
+      fsType = "vfat";
+    };
 
   swapDevices = [ ];
 
@@ -100,14 +32,12 @@
   # still possible to use this option, but it's recommended to use it in conjunction
   # with explicit per-interface declarations with `networking.interfaces.<interface>.useDHCP`.
   networking.useDHCP = lib.mkDefault true;
-  # networking.interfaces.enp4s0.useDHCP = lib.mkDefault true;
-  # networking.interfaces.wlp3s0.useDHCP = lib.mkDefault true;
+  # networking.interfaces.enp7s0.useDHCP = lib.mkDefault true;
 
   nixpkgs.hostPlatform = lib.mkDefault "x86_64-linux";
 
   nixpkgs.config.allowUnfree = true;
-  hardware.enableAllFirmware = true;
-  hardware.enableRedistributableFirmware = true;
-
-  hardware.cpu.intel.updateMicrocode = lib.mkDefault config.hardware.enableRedistributableFirmware;
+  # hardware.enableAllFirmware = true;
+  # hardware.enableRedistributableFirmware = true;
+  # hardware.cpu.intel.updateMicrocode = lib.mkDefault config.hardware.enableRedistributableFirmware;
 }

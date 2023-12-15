@@ -11,6 +11,8 @@ in
   imports =
     [ # Include the results of the hardware scan.
       ./hardware-configuration.nix
+      # Hardening profile
+      # <nixpkgs/nixos/modules/profiles/hardened.nix>
       ./ups.nix
       ./mapgen.nix
       ./caddy.nix
@@ -22,42 +24,49 @@ in
   boot.loader.systemd-boot.enable = true;
   boot.loader.efi.canTouchEfiVariables = true;
 
+  # Setup keyfile
+  boot.initrd.secrets = {
+    "/crypto_keyfile.bin" = null;
+  };
+  
   # tailscale subnet routers need to be able to forward 
   boot.kernel.sysctl."net.ipv4.ip_forward" = 1;
   boot.kernel.sysctl."net.ipv6.conf.all.forwarding" = 1;
 
-  networking.hostName = "nixos-dell"; # Define your hostname.
-  # ignore wpa_supplicant because we'll be using NetworkManager to configure wireless networking
-  # networking.wireless.enable = true;  # Enables wireless support via wpa_supplicant.
-
+  networking.hostName = "fw-mesh-vm-nixos";
+  
   # Set your time zone.
   time.timeZone = "America/Phoenix";
 
+  # Enable networking
   networking = {
     networkmanager.enable = true;
   };
   
-  # Enable sound
-  sound.enable = true;
-  hardware.pulseaudio.enable = true;
-
   # Select internationalisation properties.
   i18n.defaultLocale = "en_US.UTF-8";
+  i18n.extraLocaleSettings = {
+    LC_ADDRESS = "en_US.UTF-8";
+    LC_IDENTIFICATION = "en_US.UTF-8";
+    LC_MEASUREMENT = "en_US.UTF-8";
+    LC_MONETARY = "en_US.UTF-8";
+    LC_NAME = "en_US.UTF-8";
+    LC_NUMERIC = "en_US.UTF-8";
+    LC_PAPER = "en_US.UTF-8";
+    LC_TELEPHONE = "en_US.UTF-8";
+    LC_TIME = "en_US.UTF-8";
+  };
   console = {
     font = "Lat2-Terminus16";
     keyMap = "us";
   };
 
-  # Define user accounts. Don't forget to set a password with ‘passwd’.
   users.users.josh = {
     isNormalUser = true;
     home = "/home/josh";
     description = "josh";
-    extraGroups = [ "wheel" "networkmanager" "docker" ]; # Enable 'sudo', ability to configure network, and docker
-    # hashed passwords and authorized keys set in ./configuration-private.nix
+    extraGroups = [ "networkmanager" "wheel" "docker" ];
   };
-
-  # Disable mutable users
   users.mutableUsers = false;
 
   # Only wheel (sudo) users can do nix sry
@@ -83,6 +92,7 @@ in
     quickemu
     sshpass
     age
+    restic
     unstablePkgs.helix
     unstablePkgs.tailscale
   ];
@@ -93,6 +103,7 @@ in
   systemd.targets.hibernate.enable = false;
   systemd.targets.hybrid-sleep.enable = false;
 
+  # Enable the X11 windowing system.
   # Enable X11 + gnome + xfce.
   services.xserver = {
     enable = true;
@@ -104,7 +115,33 @@ in
       xfce.enable = true;
     };
   };
-    
+
+  # Configure keymap in X11
+  services.xserver = {
+    layout = "us";
+    xkbVariant = "";
+  };
+
+  # Enable CUPS to print documents.
+  services.printing.enable = false;
+
+  # Enable sound with pipewire.
+  sound.enable = true;
+  hardware.pulseaudio.enable = false;
+  security.rtkit.enable = true;
+  services.pipewire = {
+    enable = true;
+    alsa.enable = true;
+    alsa.support32Bit = true;
+    pulse.enable = true;
+    # If you want to use JACK applications, uncomment this
+    #jack.enable = true;
+
+    # use the example session manager (no others are packaged yet so this is enabled by default,
+    # no need to redefine it in your config for now)
+    #media-session.enable = true;
+  };
+  
   # Enable xrdp with xfce as the DE because gnome is being a pain in the ass
   services.xrdp = {
     enable = true;
@@ -112,6 +149,7 @@ in
   };
 
   # Enable the OpenSSH daemon.
+  # services.openssh.enable = true;
   services.openssh = {
     enable = true;
     settings = {
@@ -120,11 +158,10 @@ in
       KbdInteractiveAuthentication = false;
     };
     # From Xe Iaso
-    # except the agent forwarding
     extraConfig = ''
       AuthenticationMethods publickey
       AllowStreamLocalForwarding no
-      AllowAgentForwarding yes
+      AllowAgentForwarding no
       AllowTcpForwarding yes
       X11Forwarding no
     '';
@@ -132,7 +169,7 @@ in
 
   networking.nat.enable = true;
   # Death to Wi-Fi, long live Ethernet
-  networking.nat.externalInterface = "enp4s0";
+  networking.nat.externalInterface = "enp7s0";
   networking.nat.internalInterfaces = [ "mesh-wg" ];
   # Configure the firewall
   networking.firewall = {
@@ -199,7 +236,7 @@ in
     docker = {
       enable = true;
     };
-  };
+  };  
 
   # This value determines the NixOS release from which the default
   # settings for stateful data, like file locations and database versions
@@ -222,5 +259,7 @@ in
 
   # and do automatic store optimization
   nix.settings.auto-optimise-store = true;
-}
 
+  # Spice agent
+  services.spice-vdagentd.enable = true;
+}

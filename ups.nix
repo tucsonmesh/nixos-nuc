@@ -7,8 +7,17 @@ let
   upsname = "apc";
   upsmonUser = "nut";
   upsmonPassword = "ups-password";
+  oldPkgs = import ( fetchGit {
+    url = "https://github.com/NixOS/nixpkgs";
+    # Commit before UPS was broken by switching setup-ups script to systemd tmpfiles
+    rev = "6bb0dbf91feecfec45382f762206a12de23fd531";
+  });
 in
 {
+  nixpkgs.overlays = [(final: prev: {
+    power.ups = oldPkgs.power.ups;
+  })];
+
   # We have a UPS now
   # Let's copy reddit dude
   # https://www.reddit.com/r/NixOS/comments/10rwzbc/working_powerupsnut_netserver_config_for_nixos/
@@ -17,7 +26,6 @@ in
   power.ups = {
     enable = true;
     mode = "standalone";
-    maxStartDelay = 30;
     ups."${upsname}" = {
       # I noticed that nut-scanner put everything it detected in quotes and NixOS wasn't doing that
       driver = "\"usbhid-ups\"";
@@ -32,6 +40,7 @@ in
         "serial = \"4B2216P31656\""
         "bus = \"002\""
       ];
+      # maxStartDelay = 30;
       # "this option is not valid for usbhid-ups" -- the internet
       maxStartDelay = null;
     };
