@@ -13,7 +13,7 @@ in
     package = unstablePkgs.caddy;
 
     logFormat = ''
-      level DEBUG
+      level INFO
       format console
     '';
 
@@ -24,14 +24,18 @@ in
     '';
 
     extraConfig = ''
-      # special helper for declaring wireguard-restricted reverse-proxied services
-      (restrict-wireguard) {
-      	@iswireguard remote_ip 10.100.0.1/24
+      # special helper for declaring wireguard-or-tailscale-restricted reverse-proxied services
+      (restrict-vpn) {
+        @iswireguard remote_ip 10.100.0.1/24
+        @istailscale remote_ip 100.64.0.0/10
 
-      	# if remote IP is good, allow through to the specified
-      	handle @iswireguard {
-      		reverse_proxy "{args.0}"
-      	}
+        # if remote IP is good, allow through to the specified
+        handle @iswireguard {
+          reverse_proxy "{args[0]}"
+        }
+        handle @istailscale {
+          reverse_proxy "{args[0]}"
+        }
 
       	# otherwise, abort
       	handle {
@@ -48,12 +52,12 @@ in
 
       	redir /map /map/
       	handle_path /map/* {
-      		import restrict-wireguard localhost:8080
+      		import restrict-vpn localhost:8080
       	}
 
       	redir /librenms /librenms/
       	handle_path /librenms/* {
-      		import restrict-wireguard localhost:8081
+      		import restrict-vpn localhost:8081
       	}
 
       	redir /speedtest /speedtest/

@@ -15,8 +15,8 @@ in
     # o+rx needed for caddy.nix
     homeMode = "755";
     packages = [
-      pkgs.python39
-      pkgs.python39Packages.pip
+      pkgs.python311
+      pkgs.python311Packages.pip
       unstablePkgs.caddy
     ];
   };
@@ -29,7 +29,7 @@ in
     wantedBy = [ "multi-user.target" ];
     after = [ "network-online.target" ];
     
-    path = [ pkgs.python39 pkgs.python39Packages.pip ];
+    path = [ pkgs.python311 pkgs.python311Packages.pip ];
 
     serviceConfig = {
       Type = "oneshot";

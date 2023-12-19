@@ -6,6 +6,7 @@
 
 let
   unstablePkgs = import ( fetchTarball https://github.com/NixOS/nixpkgs/archive/nixos-unstable.tar.gz ) { config = config.nixpkgs.config; };
+  natInterface = "enp7s0";
 in
 {
   imports =
@@ -13,7 +14,7 @@ in
       ./hardware-configuration.nix
       # Hardening profile
       # <nixpkgs/nixos/modules/profiles/hardened.nix>
-      ./ups.nix
+      #./ups.nix
       ./mapgen.nix
       ./caddy.nix
       ./restic.nix
@@ -112,7 +113,7 @@ in
     };
     desktopManager = {
       gnome.enable = true;
-      xfce.enable = true;
+      xfce.enable = false;
     };
   };
 
@@ -169,7 +170,7 @@ in
 
   networking.nat.enable = true;
   # Death to Wi-Fi, long live Ethernet
-  networking.nat.externalInterface = "enp7s0";
+  networking.nat.externalInterface = "${natInterface}";
   networking.nat.internalInterfaces = [ "mesh-wg" ];
   # Configure the firewall
   networking.firewall = {
@@ -216,12 +217,12 @@ in
       # This allows the wireguard server to route your traffic to the internet and hence be like a VPN
       # For this to work you have to set the dnsserver IP of your router (or dnsserver of choice) in your clients
       postSetup = ''
-        ${pkgs.iptables}/bin/iptables -t nat -A POSTROUTING -s 10.100.0.0/24 -o enp0s29u1u1 -j MASQUERADE
+        ${pkgs.iptables}/bin/iptables -t nat -A POSTROUTING -s 10.100.0.0/24 -o ${natInterface} -j MASQUERADE
       '';
 
       # This undoes the above command
       postShutdown = ''
-        ${pkgs.iptables}/bin/iptables -t nat -D POSTROUTING -s 10.100.0.0/24 -o enp0s29u1u1 -j MASQUERADE
+        ${pkgs.iptables}/bin/iptables -t nat -D POSTROUTING -s 10.100.0.0/24 -o ${natInterface} -j MASQUERADE
       '';
 
       # private key file and peers defined in ./configuration-private.nix
@@ -262,4 +263,5 @@ in
 
   # Spice agent
   services.spice-vdagentd.enable = true;
+  services.qemuGuest.enable = true;
 }
