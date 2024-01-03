@@ -6,15 +6,15 @@
 
 let
   unstablePkgs = import ( fetchTarball https://github.com/NixOS/nixpkgs/archive/nixos-unstable.tar.gz ) { config = config.nixpkgs.config; };
-  natInterface = "enp7s0";
+  natInterface = "enp1s0";
 in
 {
   imports =
     [ # Include the results of the hardware scan.
       ./hardware-configuration.nix
       # Hardening profile
-      # <nixpkgs/nixos/modules/profiles/hardened.nix>
-      #./ups.nix
+      <nixpkgs/nixos/modules/profiles/hardened.nix>
+      ./ups.nix
       ./mapgen.nix
       ./caddy.nix
       ./restic.nix
@@ -29,10 +29,19 @@ in
   boot.initrd.secrets = {
     "/crypto_keyfile.bin" = null;
   };
+
+  # we want a reasonably-updated kernel
+  # boot.kernelPackages = pkgs.linuxPackages_latest;
+  boot.kernelPackages = pkgs.linuxPackages_6_6_hardened;
   
   # tailscale subnet routers need to be able to forward 
   boot.kernel.sysctl."net.ipv4.ip_forward" = 1;
   boot.kernel.sysctl."net.ipv6.conf.all.forwarding" = 1;
+  # Override networking-related options that enable strict reverse path filtering in hardened profile
+  boot.kernel.sysctl."net.ipv4.conf.all.log_martians" = false;
+  boot.kernel.sysctl."net.ipv4.conf.all.rp_filter" = "0";
+  boot.kernel.sysctl."net.ipv4.conf.default.log_martians" = false;
+  boot.kernel.sysctl."net.ipv4.conf.default.rp_filter" = "0";
 
   networking.hostName = "fw-mesh-vm-nixos";
   
