@@ -181,7 +181,7 @@ in
     extraConfig = ''
       AuthenticationMethods publickey
       AllowStreamLocalForwarding no
-      AllowAgentForwarding no
+      AllowAgentForwarding yes
       AllowTcpForwarding yes
       X11Forwarding no
     '';
