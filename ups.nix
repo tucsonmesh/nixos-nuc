@@ -13,6 +13,8 @@ in
   imports = [
     <nixos-unstable/nixos/modules/services/monitoring/ups.nix>
   ];
+
+  # age.secrets.upsmonUserPasswordFile.file = "/etc/nixos/secrets/upsmonUser.passwordFile.age";
   
   # APC UPS declaration
   power.ups = {
@@ -32,7 +34,7 @@ in
         "product = \"Back-UPS ES 850G2 FW:931.a10.D USB FW:a10\""
         "vendor = \"American Power Conversion\""
         "serial = \"4B2216P31656\""
-        "bus = \"001\""
+        #"bus = \"001\""
       ];
       # maxStartDelay = 30;
       # "this option is not valid for usbhid-ups" -- the internet
@@ -44,6 +46,7 @@ in
       monitor."${upsname}" = {
         system = "${upsname}@localhost";
         user = "${upsmonUser}";
+        # passwordFile = config.age.secrets.upsmonUserPasswordFile.path;
         passwordFile = "/etc/nixos/secrets/upsmonUser.passwordFile";
         type = "master";
       };

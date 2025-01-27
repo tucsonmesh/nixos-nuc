@@ -52,7 +52,7 @@ in
 
       	redir /map /map/
       	handle_path /map/* {
-      		import restrict-vpn localhost:8080
+          reverse_proxy localhost:8080
       	}
 
       	redir /librenms /librenms/

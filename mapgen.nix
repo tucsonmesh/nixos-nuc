@@ -26,10 +26,29 @@ in
   systemd.services.mesh-geojson = {
     description = "a service that generates geojson for mapping";
 
-    wantedBy = [ "multi-user.target" ];
+    wants = [ "network-online.target" ];
     after = [ "network-online.target" ];
+    wantedBy = [ "multi-user.target" ];
     
     path = [ pkgs.python311 pkgs.python311Packages.pip ];
+
+    script = ''
+      set -x
+
+      echo "Updating mesh.geojson..."
+
+      source /var/lib/mapgen/trello_env.sh
+      pushd  /var/lib/mapgen/trello_to_geojson
+      source ./venv/bin/activate
+      python get_board.py
+      if [ $? -ne 0 ]; then
+        python call_for_help.py
+        echo "Updates failed!"
+      else
+        mv out.geojson /var/lib/mapgen/website/deploy/mesh.geojson
+        echo "Updates completed!"
+      fi
+    '';
 
     serviceConfig = {
       Type = "oneshot";
@@ -38,7 +57,6 @@ in
 
       TimeoutStartSec = "5min";
       Restart = "no";
-      ExecStart = "/var/lib/mapgen/update_geojson.sh";
     };
   };
 
@@ -52,7 +70,7 @@ in
     timerConfig = {
       # The service already runs at boot.
       # Just run it every hour thereafter.
-      OnUnitActiveSec = "1hour";
+      OnUnitActiveSec = "2hours";
     };
   };
 

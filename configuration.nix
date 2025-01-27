@@ -14,6 +14,7 @@ in
       ./hardware-configuration.nix
       # Hardening profile
       <nixpkgs/nixos/modules/profiles/hardened.nix>
+      # <agenix/modules/age.nix>
       ./ups.nix
       ./mapgen.nix
       ./caddy.nix
@@ -31,8 +32,8 @@ in
   };
 
   # we want a reasonably-updated kernel
-  # boot.kernelPackages = pkgs.linuxPackages_latest;
-  boot.kernelPackages = pkgs.linuxPackages_6_6_hardened;
+  boot.kernelPackages = pkgs.linuxPackages_latest;
+  # boot.kernelPackages = pkgs.linuxPackages_6_9_hardened;
   
   # tailscale subnet routers need to be able to forward 
   boot.kernel.sysctl."net.ipv4.ip_forward" = 1;
@@ -77,6 +78,12 @@ in
     description = "josh";
     extraGroups = [ "networkmanager" "wheel" "docker" ];
   };
+  users.users.ghing = {
+    isNormalUser = true;
+    home = "/home/ghing";
+    description = "geoff";
+    extraGroups = [ ];
+  };
   users.mutableUsers = false;
 
   # Only wheel (sudo) users can do nix sry
@@ -103,6 +110,9 @@ in
     sshpass
     age
     restic
+    ripgrep
+    ncdu
+    (pkgs.callPackage <agenix/pkgs/agenix.nix> {})
     unstablePkgs.helix
     unstablePkgs.tailscale
   ];
@@ -127,9 +137,9 @@ in
   };
 
   # Configure keymap in X11
-  services.xserver = {
+  services.xserver.xkb = {
     layout = "us";
-    xkbVariant = "";
+    variant = "";
   };
 
   # Enable CUPS to print documents.
@@ -271,6 +281,6 @@ in
   nix.settings.auto-optimise-store = true;
 
   # Spice agent
-  services.spice-vdagentd.enable = true;
-  services.qemuGuest.enable = true;
+  #services.spice-vdagentd.enable = true;
+  #services.qemuGuest.enable = true;
 }
