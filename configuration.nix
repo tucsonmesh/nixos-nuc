@@ -117,6 +117,11 @@ in
     unstablePkgs.tailscale
   ];
 
+  # Also add 1Password. Unfortunately, GUI is what provides op-ssh-sign.
+  # nixpkgs.config.allowUnfreePredicate = pkg: builtins.elem (lib.getName pkg) [ ""]
+  programs._1password = { enable = true; };
+  programs._1password-gui = { enable = true; };
+
   # Disable sleep
   systemd.targets.sleep.enable = false;
   systemd.targets.suspend.enable = false;
