@@ -6,6 +6,12 @@ let
   unstablePkgs = import ( fetchTarball https://github.com/NixOS/nixpkgs/archive/nixos-unstable.tar.gz ) { config = config.nixpkgs.config; };
 in
 {
+  # mapgen and caddy users share the webbies group for sharing access to deployed map contents
+  users.users.caddy.extraGroups = [ "webbies" ];
+
+  # restart the unit when changed rather than reloading. reloading never works
+  systemd.services.caddy.restartIfChanged = true;
+
   services.caddy = {
     enable = true;
     resume = false;
@@ -25,9 +31,9 @@ in
 
     extraConfig = ''
       # special helper for declaring wireguard-or-tailscale-restricted reverse-proxied services
-      (restrict-vpn) {
+      (restricted-ips) {
         @iswireguard remote_ip 10.100.0.1/24
-        @istailscale remote_ip 100.64.0.0/10
+        @istailscale remote_ip 100.64.0.0/10 fd7a:115c:a1e0::/48
 
         # if remote IP is good, allow through to the specified
         handle @iswireguard {
@@ -52,24 +58,26 @@ in
 
       	redir /map /map/
       	handle_path /map/* {
+          # no wireguard/vpn restriction
           reverse_proxy localhost:8080
       	}
 
       	redir /librenms /librenms/
       	handle_path /librenms/* {
-      		import restrict-vpn localhost:8081
+          # wireguard/vpn restriction
+          import restricted-ips localhost:8081
       	}
 
       	redir /speedtest /speedtest/
       	handle_path /speedtest/* {
-      		# no wireguard restriction
+          # no wireguard/vpn restriction
       		reverse_proxy localhost:8082
       	}
 
         handle * {
           file_server
           root * ${
-            pkgs.runCommand "wild-nix-caddy-directory" {} ''
+            pkgs.runCommand "basic-caddy-site-gen" {} ''
               mkdir "$out"
               cat <<EOF > "$out/index.html"
               <!DOCTYPE html>
@@ -88,7 +96,7 @@ in
         }
       '';
 
-      listenAddresses = [ "0.0.0.0" ];
+      listenAddresses = [ "0.0.0.0" "::" ];
     };
 
     virtualHosts.":8080" = {

@@ -5,20 +5,23 @@ let
   unstablePkgs = import ( fetchTarball https://github.com/NixOS/nixpkgs/archive/nixos-unstable.tar.gz ) { config = config.nixpkgs.config; };
 in
 {
-  # Make an unprivileged, system user for running these tasks
+  # Create the webbies group so that mapgen and caddy can collab
+  users.groups.webbies = { name = "webbies"; };
+
+  # Make an unprivileged, system user for running mapgen tasks
   users.users.mapgen = {
     isSystemUser = true;
     group = "mapgen";
     description = "mapgen user";
     home = "/var/lib/mapgen";
     createHome = true;
-    # o+rx needed for caddy.nix
-    homeMode = "755";
+    homeMode = "750";
     packages = [
       pkgs.python311
       pkgs.python311Packages.pip
       unstablePkgs.caddy
     ];
+    extraGroups = [ "webbies" ];
   };
   users.groups.mapgen = { };
 
@@ -73,26 +76,4 @@ in
       OnUnitActiveSec = "2hours";
     };
   };
-
-  # Finally, we need a webserver that handles that geojson
-  # This has been migrated to caddy.nix. Will be removed once it's clear we're sticking with that
-  #systemd.services.mesh-webserver = {
-  #  description = "a map webserver";
-  #
-  #  wantedBy = [ "multi-user.target" ];
-  #  after = [ "network-online.target" ];
-  #
-  #  path = [ unstablePkgs.caddy ];
-  #
-  #  serviceConfig = {
-  #    Type = "simple";
-  #    User = "mapgen";
-  #    Group = "mapgen";
-  #
-  #    Restart = "on-failure";
-  #    RestartSec = "10s";
-  #
-  #    ExecStart = "/var/lib/mapgen/website/start_webserver.sh";
-  #  };
-  #};
 }
