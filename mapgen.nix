@@ -48,7 +48,7 @@ in
         python call_for_help.py
         echo "Updates failed!"
       else
-        mv out.geojson /var/lib/mapgen/website/deploy/mesh.geojson
+        mv out.geojson /var/lib/mapgen/website/mesh.geojson
         echo "Updates completed!"
       fi
     '';
