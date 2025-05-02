@@ -11,6 +11,7 @@ in
 
   # restart the unit when changed rather than reloading. reloading never works
   systemd.services.caddy.restartIfChanged = true;
+  systemd.services.caddy.reloadIfChanged = false;
 
   services.caddy = {
     enable = true;
