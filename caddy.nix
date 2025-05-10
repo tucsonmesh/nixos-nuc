@@ -102,10 +102,10 @@ in
 
     virtualHosts.":8080" = {
       extraConfig = ''
-      	root * /var/lib/mapgen/website/deploy
+      	root * /var/lib/mapgen/website/
 
       	file_server {
-      		hide /var/lib/mapgen/website/deploy/.git*
+      		hide /var/lib/mapgen/website/.git*
       	}
       '';
 

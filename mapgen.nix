@@ -3,6 +3,44 @@
 
 let
   unstablePkgs = import ( fetchTarball https://github.com/NixOS/nixpkgs/archive/nixos-unstable.tar.gz ) { config = config.nixpkgs.config; };
+  pythonPackages = pkgs.python311Packages;
+  pytrelloapi = pythonPackages.buildPythonPackage {
+    name = "py-trello-api";
+    src = pkgs.fetchFromGitHub {
+      owner = "Konano";
+      repo = "py-trello-api";
+      rev = "f4ec4c90b9a837d09bd3bc6e593510d0b7234c64";
+      sha256 = "KPOAHIm05nzbtPmkfH5vxzyuBCr8ZXQ7p9tPQ6KUGKA=";
+    };
+  };
+  pytrello = pythonPackages.buildPythonPackage {
+    name = "py-trello";
+    src = pkgs.fetchFromGitHub {
+      owner = "sarumont";
+      repo = "py-trello";
+      rev = "f89a72a218295c572921103a08d4ce3ec225c353";
+      sha256 = "";
+    };
+  };
+  trello2geojson =
+    pythonPackages.buildPythonPackage {
+      format = "pyproject";
+      name = "trello-to-geojson";
+      src = pkgs.fetchFromGitHub {
+        owner = "tucsonmesh";
+        repo = "trello-to-geojson";
+        rev = "6cf978379da1e5d6b18669ae34fd56fbc6fde709";
+        sha256 = "Y3rge0srt6qk4R5iX+iJ3GYIPb3bF1UFcJrpLRThom4=";
+      };
+      propagatedBuildInputs = [
+        pythonPackages.setuptools
+        pythonPackages.slack-sdk
+        pythonPackages.requests
+        pythonPackages.pytz
+        pythonPackages.requests-oauthlib
+        pytrelloapi
+      ];
+    };
 in
 {
   # Create the webbies group so that mapgen and caddy can collab
@@ -15,7 +53,7 @@ in
     description = "mapgen user";
     home = "/var/lib/mapgen";
     createHome = true;
-    homeMode = "750";
+    homeMode = "755";
     packages = [
       pkgs.python311
       pkgs.python311Packages.pip
@@ -33,7 +71,9 @@ in
     after = [ "network-online.target" ];
     wantedBy = [ "multi-user.target" ];
     
-    path = [ pkgs.python311 pkgs.python311Packages.pip ];
+    path = [ pkgs.python311
+             pkgs.python311Packages.pip
+             trello2geojson ];
 
     script = ''
       set -x
@@ -41,11 +81,11 @@ in
       echo "Updating mesh.geojson..."
 
       source /var/lib/mapgen/trello_env.sh
-      pushd  /var/lib/mapgen/trello_to_geojson
-      source ./venv/bin/activate
-      python get_board.py
+      pushd /var/lib/mapgen
+      trello-to-geojson > out.geojson
+      chgrp webbies out.geojson
       if [ $? -ne 0 ]; then
-        python call_for_help.py
+        call-for-help C056JJYT9UH "Help! I can't generate new map geojson from the trello! The map won't update without this!"
         echo "Updates failed!"
       else
         mv out.geojson /var/lib/mapgen/website/mesh.geojson
