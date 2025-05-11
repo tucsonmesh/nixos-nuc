@@ -72,17 +72,22 @@ in
     keyMap = "us";
   };
 
+  users.groups.josh = {};
   users.users.josh = {
     isNormalUser = true;
     home = "/home/josh";
     description = "josh";
-    extraGroups = [ "networkmanager" "wheel" "docker" ];
+    group = "josh";
+    extraGroups = [ "users" "networkmanager" "wheel" "docker" ];
   };
+
+  users.groups.ghing = {};
   users.users.ghing = {
     isNormalUser = true;
     home = "/home/ghing";
     description = "geoff";
-    extraGroups = [ ];
+    group = "ghing";
+    extraGroups = [ "users" ];
   };
   users.mutableUsers = false;
 
