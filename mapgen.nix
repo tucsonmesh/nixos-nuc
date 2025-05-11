@@ -2,7 +2,6 @@
 { config, lib, pkgs, modulesPath, ... }:
 
 let
-  unstablePkgs = import ( fetchTarball https://github.com/NixOS/nixpkgs/archive/nixos-unstable.tar.gz ) { config = config.nixpkgs.config; };
   pythonPackages = pkgs.python311Packages;
   pytrelloapi = pythonPackages.buildPythonPackage {
     name = "py-trello-api";
@@ -41,6 +40,13 @@ let
         pytrelloapi
       ];
     };
+  
+  mapgenPkgs = [
+    pkgs.acl
+    pkgs.python311
+    pkgs.python311Packages.pip
+    trello2geojson
+  ];
 in
 {
   # Create the webbies group so that mapgen and caddy can collab
@@ -54,11 +60,7 @@ in
     home = "/var/lib/mapgen";
     createHome = true;
     homeMode = "755";
-    packages = [
-      pkgs.python311
-      pkgs.python311Packages.pip
-      unstablePkgs.caddy
-    ];
+    packages = mapgenPkgs;
     extraGroups = [ "webbies" ];
   };
   users.groups.mapgen = { };
@@ -70,26 +72,29 @@ in
     wants = [ "network-online.target" ];
     after = [ "network-online.target" ];
     wantedBy = [ "multi-user.target" ];
-    
-    path = [ pkgs.python311
-             pkgs.python311Packages.pip
-             trello2geojson ];
+
+    # All we need on the path are the binaries defined in mapgenPkgs  
+    path = mapgenPkgs;
 
     script = ''
       set -x
 
       echo "Updating mesh.geojson..."
 
-      source /var/lib/mapgen/trello_env.sh
       pushd /var/lib/mapgen
-      trello-to-geojson > out.geojson
-      chgrp webbies out.geojson
+      source /var/lib/mapgen/trello_env.sh
+      trello-to-geojson > mesh.geojson
+
       if [ $? -ne 0 ]; then
         call-for-help C056JJYT9UH "Help! I can't generate new map geojson from the trello! The map won't update without this!"
         echo "Updates failed!"
       else
-        mv out.geojson /var/lib/mapgen/website/mesh.geojson
         echo "Updates completed!"
+      fi
+
+      # Either way (given we may have partially generated a mesh.geojson result), ensure caddy can read any file that does exist
+      if [ -f mesh.geojson ]; then
+        setfacl --modify u:caddy:r mesh.geojson
       fi
     '';
 
@@ -112,7 +117,7 @@ in
 
     timerConfig = {
       # The service already runs at boot.
-      # Just run it every hour thereafter.
+      # Let's run it every two hours thereafter.
       OnUnitActiveSec = "2hours";
     };
   };

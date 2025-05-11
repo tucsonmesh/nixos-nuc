@@ -102,10 +102,10 @@ in
 
     virtualHosts.":8080" = {
       extraConfig = ''
-      	root * /var/lib/mapgen/website/
+      	root * /var/lib/caddy/map.js/
 
       	file_server {
-      		hide /var/lib/mapgen/website/.git*
+      		hide /var/lib/caddy/map.js/.git*
       	}
       '';
 
