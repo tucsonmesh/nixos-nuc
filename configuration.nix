@@ -88,7 +88,7 @@ in
     home = "/home/ghing";
     description = "geoff";
     group = "ghing";
-    extraGroups = [ "users" ];
+    extraGroups = [ "users" "wheel" ];
   };
   users.mutableUsers = false;
 
