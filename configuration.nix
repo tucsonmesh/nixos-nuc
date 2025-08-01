@@ -5,7 +5,8 @@
 { config, pkgs, ... }:
 
 let
-  unstablePkgs = import ( fetchTarball https://github.com/NixOS/nixpkgs/archive/nixos-unstable.tar.gz ) { config = config.nixpkgs.config; };
+  # unstablePkgs = import ( fetchTarball https://github.com/NixOS/nixpkgs/archive/nixos-unstable.tar.gz ) { config = config.nixpkgs.config; };
+  unstablePkgs = import <nixos-unstable> { config = config.nixpkgs.config; };
   natInterface = "enp1s0";
 in
 {
@@ -15,7 +16,7 @@ in
       # Hardening profile
       <nixpkgs/nixos/modules/profiles/hardened.nix>
       # <agenix/modules/age.nix>
-      ./ups.nix
+      #./ups.nix
       ./mapgen.nix
       ./caddy.nix
       ./restic.nix
@@ -156,7 +157,7 @@ in
   services.printing.enable = false;
 
   # Enable sound with pipewire.
-  hardware.pulseaudio.enable = false;
+  services.pulseaudio.enable = false;
   security.rtkit.enable = true;
   services.pipewire = {
     enable = true;
@@ -217,7 +218,7 @@ in
     ];
     allowedUDPPortRanges = [
       # wireguard
-      { from = 51820; to = 51820; }
+      # { from = 51820; to = 51820; }
       # mosh server
       { from = 60000; to = 61000; }
       # tailscale
@@ -234,28 +235,28 @@ in
   services.tailscale.enable = true;
   # oneshot systemd unit defined in ./configuration-private.nix
 
-  networking.wireguard.interfaces = {
-    mesh-wg = {
-      # Determines the IP address and subnet of the server's end of the tunnel interface.
-      ips = [ "10.100.0.1/24" ];
+  # networking.wireguard.interfaces = {
+  #   mesh-wg = {
+  #     # Determines the IP address and subnet of the server's end of the tunnel interface.
+  #     ips = [ "10.100.0.1/24" ];
 
-      # The port that WireGuard listens to. Must be accessible by the client + synchronized with firewall allowedUDPPorts
-      listenPort = 51820;
+  #     # The port that WireGuard listens to. Must be accessible by the client + synchronized with firewall allowedUDPPorts
+  #     listenPort = 51820;
 
-      # This allows the wireguard server to route your traffic to the internet and hence be like a VPN
-      # For this to work you have to set the dnsserver IP of your router (or dnsserver of choice) in your clients
-      postSetup = ''
-        ${pkgs.iptables}/bin/iptables -t nat -A POSTROUTING -s 10.100.0.0/24 -o ${natInterface} -j MASQUERADE
-      '';
+  #     # This allows the wireguard server to route your traffic to the internet and hence be like a VPN
+  #     # For this to work you have to set the dnsserver IP of your router (or dnsserver of choice) in your clients
+  #     postSetup = ''
+  #       ${pkgs.iptables}/bin/iptables -t nat -A POSTROUTING -s 10.100.0.0/24 -o ${natInterface} -j MASQUERADE
+  #     '';
 
-      # This undoes the above command
-      postShutdown = ''
-        ${pkgs.iptables}/bin/iptables -t nat -D POSTROUTING -s 10.100.0.0/24 -o ${natInterface} -j MASQUERADE
-      '';
+  #     # This undoes the above command
+  #     postShutdown = ''
+  #       ${pkgs.iptables}/bin/iptables -t nat -D POSTROUTING -s 10.100.0.0/24 -o ${natInterface} -j MASQUERADE
+  #     '';
 
-      # private key file and peers defined in ./configuration-private.nix
-    };
-  };
+  #     # private key file and peers defined in ./configuration-private.nix
+  #   };
+  # };
   
   # Virtualization
   virtualisation = {

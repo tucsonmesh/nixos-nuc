@@ -3,7 +3,8 @@
 
  
 let
-  unstablePkgs = import ( fetchTarball https://github.com/NixOS/nixpkgs/archive/nixos-unstable.tar.gz ) { config = config.nixpkgs.config; };
+  # unstablePkgs = import ( fetchTarball https://github.com/NixOS/nixpkgs/archive/nixos-unstable.tar.gz ) { config = config.nixpkgs.config; };
+  unstablePkgs = import <nixos-unstable> { config = config.nixpkgs.config; };
 in
 {
   # mapgen and caddy users share the webbies group for sharing access to deployed map contents
