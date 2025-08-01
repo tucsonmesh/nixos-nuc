@@ -2,7 +2,7 @@
 { config, lib, pkgs, modulesPath, ... }:
 
 let
-  pythonPackages = pkgs.python311Packages;
+  pythonPackages = pkgs.python312Packages;
   pytrelloapi = pythonPackages.buildPythonPackage {
     name = "py-trello-api";
     src = pkgs.fetchFromGitHub {
