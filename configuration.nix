@@ -121,6 +121,7 @@ in
     (pkgs.callPackage <agenix/pkgs/agenix.nix> {})
     unstablePkgs.helix
     unstablePkgs.tailscale
+    # tailscale
   ];
 
   # Also add 1Password. Unfortunately, GUI is what provides op-ssh-sign.
