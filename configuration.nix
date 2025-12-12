@@ -19,7 +19,7 @@ in
       #./ups.nix
       ./mapgen.nix
       ./caddy.nix
-      ./restic.nix
+      #./restic.nix
       ./secrets/configuration-private.nix
     ];
 
