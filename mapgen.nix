@@ -3,6 +3,7 @@
 
 let
   pythonPackages = pkgs.python312Packages;
+
   pytrelloapi = pythonPackages.buildPythonPackage {
     name = "py-trello-api";
     src = pkgs.fetchFromGitHub {
@@ -13,7 +14,14 @@ let
     };
     pyproject = true;
     build-system = [ pythonPackages.setuptools ];
+    dependencies = [
+      pythonPackages.requests
+      pythonPackages.requests-oauthlib
+      pythonPackages.python-dateutil
+      pythonPackages.pytz
+    ];
   };
+
   pytrello = pythonPackages.buildPythonPackage {
     name = "py-trello";
     src = pkgs.fetchFromGitHub {
@@ -23,6 +31,7 @@ let
       sha256 = "";
     };
   };
+
   trello2geojson =
     pythonPackages.buildPythonPackage {
       format = "pyproject";
@@ -34,15 +43,15 @@ let
         sha256 = "Y3rge0srt6qk4R5iX+iJ3GYIPb3bF1UFcJrpLRThom4=";
       };
       propagatedBuildInputs = [
+        pytrelloapi
         pythonPackages.setuptools
         pythonPackages.slack-sdk
         pythonPackages.requests
-        pythonPackages.pytz
         pythonPackages.requests-oauthlib
-        pytrelloapi
+        pythonPackages.pytz
       ];
     };
-  
+
   mapgenPkgs = [
     pkgs.acl
     pkgs.python311
