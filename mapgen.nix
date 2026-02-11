@@ -11,6 +11,8 @@ let
       rev = "f4ec4c90b9a837d09bd3bc6e593510d0b7234c64";
       sha256 = "KPOAHIm05nzbtPmkfH5vxzyuBCr8ZXQ7p9tPQ6KUGKA=";
     };
+    pyproject = true;
+    build-system = [ pythonPackages.setuptools ];
   };
   pytrello = pythonPackages.buildPythonPackage {
     name = "py-trello";

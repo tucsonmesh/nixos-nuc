@@ -137,14 +137,18 @@ in
 
   # Enable the X11 windowing system.
   # Enable X11 + gnome + xfce.
-  services.xserver = {
-    enable = true;
+  services = {
+    xserver = {
+      enable = true;
+      desktopManager = {
+        xfce.enable = false;
+      };
+    };
     displayManager = {
       gdm.enable = true;
     };
     desktopManager = {
       gnome.enable = true;
-      xfce.enable = false;
     };
   };
 
